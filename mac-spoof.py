@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import subprocess
 import os
+import random
 from sys import argv
 		
 def initial_setup():
@@ -36,5 +37,16 @@ def menu(mac,device):
 	print '\t\t\t\t\t\t5)Exit\n\n'
 	print '>> '
 
-	
+"""#!/usr/bin/env python
+import random
+def random_mac():
+	for i in range(12):
+		if(i%2==0):
+		    letter= 'a'
+			letter=chr(ord(letter)+random.randint(1,5)
+			print letter
+		else() #a
+		if(len(math)<17 and len(math)>2 and (i+1)%2==0)mac+=':'
+random_mac()"""
+
 initial_setup()
