@@ -14,6 +14,8 @@ def initial_setup():
 	for i in range(device_index,device_index+8):
 		if(tempDevice[i]!=" "):
 			device+=tempDevice[i]
+		else:
+			print 'Not connected to the Internet!'
 	
 	
 	p = subprocess.Popen("whoami", stdout=subprocess.PIPE, shell=True)
@@ -37,52 +39,54 @@ def menu(mac,device):
 	print '\t\t\t3)Reset\n'
 	print '\t\t\t\t4)Change Device\n'
 	print '\t\t\t\t\t\t5)Exit\n\n'
-	print '>>'
+	choice=input('>>')
 
-	choice=input()
 	if(choice==1):
 		mac=random_mac()
 		print mac
 	if(choice==2):
-		counter=0
-		error_notif=' '
-		while(error_notif!='OK'):
-			if(counter>0):
-				print 'Invalid MAC Address: %s' % (error_notif)
+		is_valid=False
+		while(is_valid!=True):
 			mac=raw_input('MAC Address: ')
-			error_notif=valid_mac(mac)
-			if(error_notif=='OK'):
-				set_mac(mac,device)
-			else:
-				counter+=1
+			is_valid=valid_mac(mac)
+		set_mac(mac,device)
 
 def valid_mac(mac):
 	error_notif = ''
 	error_index = ''
 	for i in range(9):
-		if(i%2==0):
-			print mac[i]
+		if((i+1)%3==0 and i!=0):
 			if(mac[i]!=':'):
 				error_index=str(i)
-				error_notif+=' \n> Expected ":" at %s' % (error_index)
-		if(len(mac)!=12):
-			error_index=str(len(mac)-5)
-			error_notif+=' \n> MAC is not correct length of 12, now at %s' % (error_index)
+				error_letter=mac[i]
+				error_notif+=' \n> Expected ":" before %s at index %s' % (error_letter,error_index)
+				break
+	if(len(mac)!=17):
+		error_index=str(len(mac)-5)
+		error_notif+=' \n> MAC is not correct length of 17 characters (Including ":")'
 	if(len(error_notif)==0):
-		error_notif = 'OK'
-
-	return error_notif
+		return True
+	else:
+		print 'Invalid MAC Address: %s' % (error_notif)
+		return False
 	
 def set_mac(mac,device):
-	sudo_ifconfig='sudo ifconfig' + device
-	subprocess.call('sudo ifconfig', device, 'down')
-	subprocess.call('sudo ifconfig', device, 'hw ether', mac)
-	subprocess.call('sudo ifconfig', device, 'up')
-	subprocess.call('sudo ifconfig', device, '|grep HWaddr')
+	print 'CHANGING MAC!'
+	sudo_ifconfig = 'sudo ifconfig ' + device
+	ifconfig_down = sudo_ifconfig + ' down'
+	ifconfig_ether = sudo_ifconfig + ' hw ether ' + mac
+	ifconfig_up = sudo_ifconfig + ' up'
+	ifconfig_HW = sudo_ifconfig + ' |grew HWaddr'
+	#cmd=[sudo_ifconfig, 'down']
+	subprocess.call(ifconfig_down, shell=True)
+	subprocess.call(ifconfig_ether, shell=True)
+	subprocess.call(ifconfig_up, shell=True)
+	subprocess.call(ifconfig_HW, shell=True) 
 	if(device[0]=='w'):
 		print "Rebooting WIFI...\n"
-		subprocess.call('nmcli nm wifi off')
-		subprocess.call('nmcli nm wifi on')	
+		subprocess.call('nmcli nm wifi off', shell=True)
+		subprocess.call('nmcli nm wifi on', shell=True)
+	menu(mac,device)	
 
 def random_mac():
 	for i in range(12):
